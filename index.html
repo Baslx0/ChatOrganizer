@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Privacy-first local organizer for ChatGPT conversation exports." />
+  <title>Chat Organizer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">CO</div>
+        <div>
+          <strong>Chat Organizer</strong>
+          <span>Local-first workspace cleanup</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-item active" data-view="overview">Overview</button>
+        <button class="nav-item" data-view="rules">Project rules</button>
+        <button class="nav-item" data-view="review">Review plan</button>
+        <button class="nav-item" data-view="agent">Agent mode</button>
+        <button class="nav-item" data-view="about">About</button>
+      </nav>
+
+      <div class="sidebar-note">
+        <span class="status-dot"></span>
+        <div>
+          <strong>Local processing</strong>
+          <p>Your export stays in this browser session.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">ChatGPT workspace utility</p>
+          <h1 id="page-title">Overview</h1>
+        </div>
+        <div class="top-actions">
+          <button id="theme-toggle" class="button secondary" type="button">Toggle theme</button>
+          <button id="load-sample" class="button secondary" type="button">Load sample</button>
+          <label class="button primary file-button">
+            Import export
+            <input id="file-input" type="file" accept="application/json,.json" hidden />
+          </label>
+        </div>
+      </header>
+
+      <section id="view-overview" class="view active">
+        <section id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="Import conversations.json">
+          <div class="drop-icon">↥</div>
+          <h2>Drop conversations.json here</h2>
+          <p>Use the ChatGPT data export. Nothing is uploaded.</p>
+          <span>or click “Import export”</span>
+        </section>
+
+        <section class="stats-grid" aria-label="Summary metrics">
+          <article class="stat-card"><span>Conversations</span><strong id="stat-total">0</strong><small>loaded</small></article>
+          <article class="stat-card"><span>Projects</span><strong id="stat-projects">0</strong><small>matched</small></article>
+          <article class="stat-card"><span>Duplicates</span><strong id="stat-duplicates">0</strong><small>possible</small></article>
+          <article class="stat-card"><span>Archive</span><strong id="stat-archive">0</strong><small>candidates</small></article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Suggested organization</p>
+              <h2>Project distribution</h2>
+            </div>
+            <button id="analyze-button" class="button primary" type="button" disabled>Analyze conversations</button>
+          </div>
+          <div id="project-bars" class="project-bars empty-state">Import an export to begin.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Recent analysis</p>
+              <h2>Conversation preview</h2>
+            </div>
+            <div class="filter-row">
+              <input id="search-input" class="input" placeholder="Search title or project…" />
+              <select id="action-filter" class="select">
+                <option value="all">All actions</option>
+                <option value="move">Move</option>
+                <option value="keep">Keep</option>
+                <option value="archive">Archive</option>
+                <option value="review">Review</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Conversation</th><th>Project</th><th>Action</th><th>Confidence</th></tr></thead>
+              <tbody id="preview-body"><tr><td colspan="4" class="empty-cell">No analysis yet.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-rules" class="view">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Classification</p>
+              <h2>Project rules</h2>
+              <p class="subtext">Keywords are matched against titles and conversation text. Higher-weight matches raise confidence.</p>
+            </div>
+            <button id="add-rule" class="button primary" type="button">Add project</button>
+          </div>
+          <div id="rules-list" class="rules-list"></div>
+        </section>
+      </section>
+
+      <section id="view-review" class="view">
+        <section class="review-hero panel">
+          <div>
+            <p class="eyebrow">Safety first</p>
+            <h2>Review before anything changes</h2>
+            <p class="subtext">This app only generates a plan. Execution is a separate local tool and should always run with a visible browser and explicit confirmation.</p>
+          </div>
+          <div class="review-actions">
+            <label class="button secondary file-button">
+              Import agent plan
+              <input id="plan-input" type="file" accept="application/json,.json" hidden />
+            </label>
+            <button id="export-plan" class="button primary" type="button" disabled>Export plan.json</button>
+            <button id="export-csv" class="button secondary" type="button" disabled>Export CSV</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="bulk-toolbar">
+            <div>
+              <strong id="selected-count">0 selected</strong>
+              <span>Adjust actions before exporting.</span>
+            </div>
+            <div class="filter-row">
+              <button class="button secondary bulk-action" data-action="keep">Keep</button>
+              <button class="button secondary bulk-action" data-action="move">Move</button>
+              <button class="button secondary bulk-action" data-action="archive">Archive</button>
+              <button class="button secondary bulk-action" data-action="review">Review</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th><input id="select-all" type="checkbox" /></th><th>Conversation</th><th>Project</th><th>Action</th><th>Why</th></tr></thead>
+              <tbody id="review-body"><tr><td colspan="5" class="empty-cell">Analyze conversations first.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-agent" class="view">
+        <section class="panel agent-hero">
+          <div>
+            <p class="eyebrow">Agent Skills compatible</p>
+            <h2>Let the agent reason; keep the data interface local</h2>
+            <p class="subtext">Agent mode gives Codex, Claude Code, or another shell-capable agent bounded tools to inspect the export, discover meaningful projects, and generate an evidence-backed plan. It does not blindly classify every chat from keywords.</p>
+          </div>
+          <div class="agent-badge">SKILL.md + CLI + JSON</div>
+        </section>
+
+        <section class="agent-grid">
+          <article class="panel">
+            <p class="eyebrow">1 · Skill</p>
+            <h3>Point your agent here</h3>
+            <code class="code-block">skills/chat-organizer/SKILL.md</code>
+            <p class="subtext">The same skill package can be installed in an agent's supported skills directory. Agents without native skill discovery can still read this file explicitly.</p>
+          </article>
+          <article class="panel">
+            <p class="eyebrow">2 · Local tools</p>
+            <h3>Give it bounded access</h3>
+            <code class="code-block">node agent/cli.mjs --help</code>
+            <p class="subtext">Inventory first, search next, and read individual conversations only when needed. The CLI is read-only with respect to ChatGPT.</p>
+          </article>
+          <article class="panel">
+            <p class="eyebrow">3 · Review</p>
+            <h3>Bring the plan back here</h3>
+            <p class="subtext">Ask the agent to write <strong>chat-organizer-plan.json</strong>, then use “Import agent plan” in Review plan. You remain the approval boundary before execution.</p>
+          </article>
+        </section>
+
+        <section class="panel prose">
+          <p class="eyebrow">Suggested agent prompt</p>
+          <h2>Semantic organization workflow</h2>
+          <pre class="code-block multiline">Use the Chat Organizer skill in skills/chat-organizer/SKILL.md.
+Analyze my conversations export semantically. Discover durable projects/workstreams instead of grouping by generic keywords. Use inventory/search first and read individual chats only when needed. For ambiguous chats use review. Do not delete anything. Generate a v2 chat-organizer-plan.json, validate it, summarize it, and stop before browser execution.</pre>
+        </section>
+      </section>
+
+      <section id="view-about" class="view">
+        <section class="panel prose">
+          <p class="eyebrow">About</p>
+          <h2>What this project does</h2>
+          <p>Chat Organizer turns a ChatGPT data export into an auditable organization plan. It is intentionally local-first: import, classify, review, then export a plan for an optional executor.</p>
+          <h3>Design principles</h3>
+          <ul>
+            <li>No server upload required.</li>
+            <li>No automatic deletion.</li>
+            <li>Every suggested action is editable.</li>
+            <li>Browser automation is isolated from analysis.</li>
+            <li>Project rules are transparent and user-editable.</li>
+            <li>Agent mode supports semantic, evidence-backed organization through a portable SKILL.md and local CLI.</li>
+          </ul>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
