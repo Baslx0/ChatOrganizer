@@ -1,0 +1,16 @@
+{
+  "name": "chat-organizer",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Privacy-first ChatGPT conversation organizer with a local web UI and agent-compatible workflow.",
+  "type": "module",
+  "scripts": {
+    "serve": "python -m http.server 8080",
+    "agent": "node agent/cli.mjs",
+    "check": "node --check app.js && node --check agent/cli.mjs && node --check executor/runner.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
