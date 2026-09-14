@@ -1,0 +1,24 @@
+# ChatGPT exports and local user data
+conversations.json
+conversations-*.json
+*conversations*.json
+chat-organizer-plan.json
+*.plan.json
+
+# Browser/session state
+.auth/
+playwright/.auth/
+auth.json
+*.session.json
+
+# Node / OS / editors
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs / temporary output
+*.log
+logs/
+tmp/
